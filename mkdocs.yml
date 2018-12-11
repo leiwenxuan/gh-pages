@@ -1,0 +1,6 @@
+site_name: lwx
+nav:
+    - Home: index.md
+    - About: about.md
+    - Text: RBAC.md
+theme: readthedocs

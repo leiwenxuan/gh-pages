@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  
+  <link rel="shortcut icon" href="../img/favicon.ico">
+  <title>Home - lwx</title>
+  <link href='https://fonts.googleapis.com/css?family=Lato:400,700|Roboto+Slab:400,700|Inconsolata:400,700' rel='stylesheet' type='text/css'>
+
+  <link rel="stylesheet" href="../css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../css/theme_extra.css" type="text/css" />
+  <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/github.min.css">
+  
+  <script>
+    // Current page data
+    var mkdocs_page_name = "Home";
+    var mkdocs_page_input_path = "restframework\u57fa\u7840\u7684\u589e\u5220\u6539\u67e5.md";
+    var mkdocs_page_url = null;
+  </script>
+  
+  <script src="../js/jquery-2.1.1.min.js" defer></script>
+  <script src="../js/modernizr-2.8.3.min.js" defer></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
+  <script>hljs.initHighlightingOnLoad();</script> 
+  
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+      <div class="wy-side-nav-search">
+        <a href=".." class="icon icon-home"> lwx</a>
+        <div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+	<ul class="current">
+	  
+          
+            <li class="toctree-l1 current">
+		
+    <a class="current" href="./">Home</a>
+    <ul class="subnav">
+            
+    <li class="toctree-l2"><a href="#1">1.创建项目</a></li>
+    
+        <ul>
+        
+            <li><a class="toctree-l3" href="#11-url">1.1 配置url</a></li>
+        
+        </ul>
+    
+
+    <li class="toctree-l2"><a href="#2">2. 创建一个简单的书籍模型</a></li>
+    
+
+    <li class="toctree-l2"><a href="#21">2.1配置数据库</a></li>
+    
+
+    <li class="toctree-l2"><a href="#3-serializer">3. 创建一个Serializer类</a></li>
+    
+
+    <li class="toctree-l2"><a href="#4-serializerdjango">4. 使用我们的Serializer编写常规Django视图</a></li>
+    
+        <ul>
+        
+            <li><a class="toctree-l3" href="#41-url">4.1 更新我们的URL</a></li>
+        
+        </ul>
+    
+
+    </ul>
+	    </li>
+          
+            <li class="toctree-l1">
+		
+    <a class="" href="../实现mixins类的封装/">About</a>
+	    </li>
+          
+            <li class="toctree-l1">
+		
+    <a class="" href="../restframework基础的增删改查进阶/">Text</a>
+	    </li>
+          
+        </ul>
+      </div>
+      &nbsp;
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="..">lwx</a>
+      </nav>
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="..">Docs</a> &raquo;</li>
+    
+      
+    
+    <li>Home</li>
+    <li class="wy-breadcrumbs-aside">
+      
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main">
+            <div class="section">
+              
+                <h1 id="1">1.创建项目</h1>
+<p>目录结构为： </p>
+<pre><code>├── book
+│   ├── admin.py
+│   ├── apps.py
+│   ├── __init__.py
+│   ├── migrations
+│   ├── models.py
+│   ├── tests.py
+│   ├── urls.py
+│   └── views.py
+├── manage.py
+├── Restmysite
+│   ├── __init__.py
+│   ├── settings.py
+│   ├── urls.py
+│   └── wsgi.py
+└── templates
+
+</code></pre>
+
+<h2 id="11-url">1.1 配置url</h2>
+<pre><code>/Restmysite/ urls.py
+from django.conf.urls import url, include
+from django.contrib import admin
+
+urlpatterns = [
+    url(r'^admin/', admin.site.urls),
+    url(r'^book/', include('book.urls', namespace='book')),
+]
+
+</code></pre>
+
+<h1 id="2">2. 创建一个简单的书籍模型</h1>
+<pre><code># /book/models.py 
+from django.db import models
+
+# Create your models here.
+__all__ = [&quot;Book&quot;, &quot;Publisher&quot;, &quot;Author&quot;]
+
+
+class Book(models.Model):
+    title = models.CharField(max_length=32)
+    CHOICES = ((1, &quot;python&quot;), (2, &quot;linux&quot;), (3, &quot;go&quot;))
+    category = models.IntegerField(choices=CHOICES)
+    pub_time = models.DateField(auto_now_add=True)
+    publisher = models.ForeignKey(to=&quot;Publisher&quot;)
+    authors = models.ManyToManyField(to=&quot;Author&quot;)
+
+
+class Publisher(models.Model):
+    title = models.CharField(max_length=32)
+
+
+class Author(models.Model):
+    name = models.CharField(max_length=32)
+</code></pre>
+
+<h1 id="21">2.1配置数据库</h1>
+<pre><code class="python"> python3 manage.py makemigrations
+ python3 manage.py migrate
+</code></pre>
+
+<h1 id="3-serializer">3. 创建一个Serializer类</h1>
+<p>我们需要开始使用Web API的第一件事是提供一种将代码段实例序列化和反序列化为表示形式的方法json。我们可以通过声明与Django表单非常相似的序列化器来完成此操作。在book名为的目录中创建一个文件serializers.py并添加以下内容。</p>
+<pre><code>from rest_framework import serializers
+from book import models
+
+
+class PublisherSerializers(serializers.Serializer):
+    id = serializers.IntegerField()
+    title = serializers.CharField(max_length=32)
+
+
+class AuthorSerializers(serializers.Serializer):
+    id = serializers.IntegerField()
+    name = serializers.CharField(max_length=32)
+
+def my_validate(value):
+    if '中共' in value.lower():
+        raise serializers.ValidationError(' 输入的信息非法')
+    return value
+
+class BooKserializers(serializers.Serializer):
+    '''序列函数
+    -- 序列化以及反序列化的时候字段类型不统一的情况
+    -- required=False
+    -- read_only=True
+    -- write_only=True
+    '''
+
+    id = serializers.IntegerField(required=False)
+     # my_validate 自定义的校验函数
+    title = serializers.CharField(max_length=32, validators=[my_validate, ])
+    pub_time = serializers.DateField()
+    # CHOICES = ((1, &quot;python&quot;), (2, &quot;linux&quot;), (3, &quot;go&quot;))
+    # category = serializers.ChoiceField(choices=CHOICES)
+    category = serializers.CharField(source=&quot;get_category_display&quot;, read_only=True)
+    post_category = serializers.IntegerField(write_only=True)
+
+    publisher = PublisherSerializers(read_only=True)
+    authors = AuthorSerializers(many=True, read_only=True)
+
+    publisher_id = serializers.IntegerField(write_only=True)
+    author_list = serializers.ListField(write_only=True)
+
+    def validate_title(self, value):
+    # title必须含有python  局部钩子函数
+            if &quot;python&quot; in value.lower():
+                return value
+            raise serializers.ValidationError(&quot;输入的图书的名字不合法&quot;)
+
+    def validate(self, attrs):
+        # 全局钩子函数
+        # attrs 是前端传过来的所有的数据组成的字典
+        if &quot;python&quot; in attrs[&quot;title&quot;] and attrs[&quot;post_category&quot;] == 1:
+            return attrs
+        raise serializers.ValidationError(&quot;输入的图书名字或者分类不合法&quot;)
+
+    # 如果是POST请求调用create
+    def create(self, validated_data):
+        book_obj = models.Book.objects.create(
+            title=validated_data['title'],
+            category=validated_data['post_category'],
+            publisher_id=validated_data['publisher_id']
+        )
+
+        # 添加多对多字段
+        book_obj.authors.add(*validated_data['author_list'])
+        return book_obj
+
+    def update(self, instance, validated_data):
+        # 通过ORM 更新
+        instance.title = validated_data.get('title', instance.title)
+        instance.pub_time = validated_data.get('pub_time', instance.pub_time)
+        instance.category = validated_data.get('category', instance.category)
+        instance.publisher_id = validated_data.get('publisher_id', instance.publisher_id)
+
+        # 更新多对多字段
+        if validated_data.get('author_list', False):
+            instance.authors.set(validated_data['author_list'])
+
+        instance.save()
+        return instance
+</code></pre>
+
+<h1 id="4-serializerdjango">4. 使用我们的Serializer编写常规Django视图</h1>
+<p>让我们看看如何使用我们的新Serializer类编写一些API视图。目前我们不会使用任何REST框架的其他功能，我们只会将视图写为常规Django视图。</p>
+<pre><code>/book/views.py
+from django.shortcuts import render
+from rest_framework.response import Response
+from rest_framework.views import APIView
+from book import models
+from book.serializers import BooKserializers
+
+# Create your views here.
+
+
+class BooKListAPIviews(APIView):
+    def get(self, requset):
+        book_queryset = models.Book.objects.all()
+        ser_obj = BooKserializers(book_queryset, many=True)
+        return Response(ser_obj.data)
+
+    def post(self, request):
+        book_obj = request.data
+        ser_obj = BooKserializers(data=book_obj)
+        # 进行数据的正确验证
+        if ser_obj.is_valid():
+            ser_obj.save()  # 保存
+            return Response(ser_obj.data)
+        # 验证失败
+        return Response(ser_obj.errors)
+
+
+class BooKEditAPIviews(APIView):
+    def get(self, requset, pk=0):
+        book_queryset = models.Book.objects.filter(pk=pk)
+        ser_obj = BooKserializers(book_queryset, many=True)
+        return Response(ser_obj.data)
+
+    def post(self, request, pk=0):
+        book_obj = models.Book.objects.filter(pk=pk).first()
+
+        # partial 可以进行单字段的修改
+        ser_obj = BooKserializers(instance=book_obj, data=request.data, partial=True)
+        # 进行数据的正确验证
+        if ser_obj.is_valid():
+            ser_obj.save()  # 保存
+            return Response(ser_obj.data)
+        # 验证失败
+        return Response(ser_obj.errors)
+
+    def delete(self, request, pk=0):
+        book_obj = models.Book.objects.filter(id=pk).first()
+        if book_obj:
+            book_obj.delete()
+            return Response(&quot;&quot;)
+        return Response(&quot;删除的对象不存在&quot;)
+
+</code></pre>
+
+<h2 id="41-url">4.1 更新我们的URL</h2>
+<pre><code>/book/urls.py
+from django.conf.urls import url
+from book import views
+urlpatterns = [
+    url(r'book_list', views.BooKListAPIviews.as_view()),
+    url(r'book_edit/(?P&lt;pk&gt;\d+)/$', views.BooKEditAPIviews.as_view())
+]
+</code></pre>
+              
+            </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="../实现mixins类的封装/" class="btn btn-neutral float-right" title="About">Next <span class="icon icon-circle-arrow-right"></span></a>
+      
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+    
+  </div>
+
+  Built with <a href="http://www.mkdocs.org">MkDocs</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+      
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" style="cursor: pointer">
+    <span class="rst-current-version" data-toggle="rst-current-version">
+      
+      
+      
+        <span style="margin-left: 15px"><a href="../实现mixins类的封装/" style="color: #fcfcfc">Next &raquo;</a></span>
+      
+    </span>
+</div>
+    <script>var base_url = '..';</script>
+    <script src="../js/theme.js" defer></script>
+      <script src="../search/main.js" defer></script>
+
+</body>
+</html>

@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  
+  <link rel="shortcut icon" href="../img/favicon.ico">
+  <title>Text - lwx</title>
+  <link href='https://fonts.googleapis.com/css?family=Lato:400,700|Roboto+Slab:400,700|Inconsolata:400,700' rel='stylesheet' type='text/css'>
+
+  <link rel="stylesheet" href="../css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../css/theme_extra.css" type="text/css" />
+  <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/github.min.css">
+  
+  <script>
+    // Current page data
+    var mkdocs_page_name = "Text";
+    var mkdocs_page_input_path = "restframework\u57fa\u7840\u7684\u589e\u5220\u6539\u67e5\u8fdb\u9636.md";
+    var mkdocs_page_url = null;
+  </script>
+  
+  <script src="../js/jquery-2.1.1.min.js" defer></script>
+  <script src="../js/modernizr-2.8.3.min.js" defer></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
+  <script>hljs.initHighlightingOnLoad();</script> 
+  
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+      <div class="wy-side-nav-search">
+        <a href=".." class="icon icon-home"> lwx</a>
+        <div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+	<ul class="current">
+	  
+          
+            <li class="toctree-l1">
+		
+    <a class="" href="../restframework基础的增删改查/">Home</a>
+	    </li>
+          
+            <li class="toctree-l1">
+		
+    <a class="" href="../实现mixins类的封装/">About</a>
+	    </li>
+          
+            <li class="toctree-l1 current">
+		
+    <a class="current" href="./">Text</a>
+    <ul class="subnav">
+            
+    <li class="toctree-l2"><a href="#serializerspy">重构我们的serializers.py</a></li>
+    
+
+    <li class="toctree-l2"><a href="#mixins">使用mixins</a></li>
+    
+
+    <li class="toctree-l2"><a href="#url">改进我们的url文件</a></li>
+    
+
+    </ul>
+	    </li>
+          
+        </ul>
+      </div>
+      &nbsp;
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="..">lwx</a>
+      </nav>
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="..">Docs</a> &raquo;</li>
+    
+      
+    
+    <li>Text</li>
+    <li class="wy-breadcrumbs-aside">
+      
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main">
+            <div class="section">
+              
+                <h1 id="serializerspy">重构我们的serializers.py</h1>
+<p>使用ModelSerializer 简化我们的代码， 优化它</p>
+<pre><code>/book/serializers.py 
+from rest_framework import serializers
+from book import models
+
+
+class BookSerializer(serializers.ModelSerializer):
+    category_text = serializers.SerializerMethodField(read_only=True)
+    publisher_info = serializers.SerializerMethodField(read_only=True)
+    author_info = serializers.SerializerMethodField(read_only=True)
+
+    # 方法字段
+    # SerializerMethodField 会去找钩子方法 钩子方法的返回值给这个字段
+    # get_字段名称
+    # obj
+
+    def get_category_text(self, obj):
+        # obj就是序列化的每个模型对象 book_obj
+        return obj.get_category_display()
+
+    def get_publisher_info(self, obj):
+        return {&quot;id&quot;: obj.publisher_id, &quot;title&quot;: obj.publisher.title}
+
+    def get_author_info(self, obj):
+        return [{
+            &quot;id&quot;: author.id,
+            &quot;name&quot;: author.name
+        } for author in obj.authors.all()]
+
+    class Meta:
+        model = models.Book
+        fields = &quot;__all__&quot;
+        # fields = [&quot;id&quot;, &quot;title&quot;, &quot;pub_time&quot;]
+        # exclude = [&quot;authors&quot;]
+        # depth = 1
+        # depth 让你所有的外键关系变成read_only=True
+        # extra_kwargs 给默认字段加额外的参数
+        extra_kwargs = {
+            &quot;category&quot;: {
+                &quot;write_only&quot;: True
+            },
+            &quot;publisher&quot;: {
+                &quot;write_only&quot;: True
+            },
+            &quot;authors&quot;: {
+                &quot;write_only&quot;: True
+            }
+        }
+
+</code></pre>
+
+<h1 id="mixins">使用mixins</h1>
+<p>使用基于类的视图的一大胜利是它允许我们轻松地组成可重用的行为。</p>
+<p>到目前为止，我们一直使用的创建/检索/更新/删除操作对于我们创建的任何模型支持的API视图都非常相似。这些常见行为在REST框架的mixin类中实现。</p>
+<p>让我们看一下如何使用mixin类来组合视图。这是我们的views.py模块。</p>
+<pre><code>/book/views.py
+from book import models
+from book.serializers import BookSerializer
+from rest_framework.viewsets import ModelViewSet
+
+
+class BookModelView(ModelViewSet):
+    queryset = models.Book.objects.all()
+    serializer_class = BookSerializer
+
+</code></pre>
+
+<h1 id="url">改进我们的url文件</h1>
+<p>根据url参数进入修改 和 添加 查看的视图</p>
+<pre><code>from django.conf.urls import url
+from book import views
+from book.views import BookModelView
+from rest_framework.routers import DefaultRouter
+
+
+# 实例化一个对象
+router = DefaultRouter()
+
+router.register('list', BookModelView)
+
+
+urlpatterns = [
+    # url(r'book_list', views.BookModelView.as_view()),
+    # url(r'book_edit/(?P&lt;pk&gt;\d+)/$', views.BookeditModelView.as_view())
+]
+
+urlpatterns += router.urls
+
+</code></pre>
+              
+            </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+      
+        <a href="../实现mixins类的封装/" class="btn btn-neutral" title="About"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+    
+  </div>
+
+  Built with <a href="http://www.mkdocs.org">MkDocs</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+      
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" style="cursor: pointer">
+    <span class="rst-current-version" data-toggle="rst-current-version">
+      
+      
+        <span><a href="../实现mixins类的封装/" style="color: #fcfcfc;">&laquo; Previous</a></span>
+      
+      
+    </span>
+</div>
+    <script>var base_url = '..';</script>
+    <script src="../js/theme.js" defer></script>
+      <script src="../search/main.js" defer></script>
+
+</body>
+</html>

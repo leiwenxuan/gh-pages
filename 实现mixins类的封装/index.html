@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  
+  <link rel="shortcut icon" href="../img/favicon.ico">
+  <title>About - lwx</title>
+  <link href='https://fonts.googleapis.com/css?family=Lato:400,700|Roboto+Slab:400,700|Inconsolata:400,700' rel='stylesheet' type='text/css'>
+
+  <link rel="stylesheet" href="../css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../css/theme_extra.css" type="text/css" />
+  <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/github.min.css">
+  
+  <script>
+    // Current page data
+    var mkdocs_page_name = "About";
+    var mkdocs_page_input_path = "\u5b9e\u73b0mixins\u7c7b\u7684\u5c01\u88c5.md";
+    var mkdocs_page_url = null;
+  </script>
+  
+  <script src="../js/jquery-2.1.1.min.js" defer></script>
+  <script src="../js/modernizr-2.8.3.min.js" defer></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
+  <script>hljs.initHighlightingOnLoad();</script> 
+  
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+      <div class="wy-side-nav-search">
+        <a href=".." class="icon icon-home"> lwx</a>
+        <div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+	<ul class="current">
+	  
+          
+            <li class="toctree-l1">
+		
+    <a class="" href="../restframework基础的增删改查/">Home</a>
+	    </li>
+          
+            <li class="toctree-l1 current">
+		
+    <a class="current" href="./">About</a>
+    <ul class="subnav">
+            
+    <li class="toctree-l2"><a href="#views">views 视图函数</a></li>
+    
+
+    <li class="toctree-l2"><a href="#url">url路由</a></li>
+    
+
+    </ul>
+	    </li>
+          
+            <li class="toctree-l1">
+		
+    <a class="" href="../restframework基础的增删改查进阶/">Text</a>
+	    </li>
+          
+        </ul>
+      </div>
+      &nbsp;
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="..">lwx</a>
+      </nav>
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="..">Docs</a> &raquo;</li>
+    
+      
+    
+    <li>About</li>
+    <li class="wy-breadcrumbs-aside">
+      
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main">
+            <div class="section">
+              
+                <h1 id="views">views 视图函数</h1>
+<pre><code>from django.shortcuts import render
+from django.views import View
+from django.http import HttpResponse, JsonResponse
+from book import models
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework import serializers
+from book.serializers import BookSerializer
+from rest_framework.viewsets import ViewSetMixin
+import json
+
+
+class GenericAPIView(APIView):
+    query_set = None
+    serializer_class = None
+
+    def get_queryset(self):
+        return self.query_set
+
+    def get_serializer(self, *args, **kwargs):
+        return self.serializer_class(*args, **kwargs)
+
+
+class ListModelMixin(object):
+    def list(self, request):
+        queryset = self.get_queryset()
+        ser_obj = self.get_serializer(queryset, many=True)
+        return Response(ser_obj.data)
+
+
+class CreateModelMixin(object):
+    def create(self, request):
+        obj = request.data
+        ser_obj = self.get_serializeer(data=obj)
+        if ser_obj.is_valid():
+            ser_obj.save()
+            return Response(ser_obj.data)
+        return Response(ser_obj.errors)
+
+
+class RetrieveModelMixin(object):
+    def retrieve(self, request, id):
+        book_obj = self.get_queryset().filter(id=id).first()
+        ser_obj = self.get_serializer(book_obj)
+        return Response(ser_obj.data)
+
+
+class UpdateModelMixin(object):
+    def update(self, request, id):
+        book_obj = self.get_queryset().filter(id=id).first()
+        ser_obj = self.get_serializer(
+            instance=book_obj, data=request, partial=True)
+        if ser_obj.is_valid():
+            ser_obj.save()
+            return Response(ser_obj.data)
+        return Response(ser_obj.errors)
+
+
+class DestroyModelMixin(object):
+    def destroy(self, request, id):
+        book_obj = self.get_query().filter(id=id).first()
+        if book_obj:
+            book_obj.delete()
+            return Response('已删除')
+        return Response('删除的对象不存在！')
+
+
+class ListCreateModelMixin(GenericAPIView, ListModelMixin, CreateModelMixin):
+    pass
+
+
+class RetrieveUpdateDestroyModelMixin(GenericAPIView, RetrieveModelMixin,
+                                      UpdateModelMixin, DestroyModelMixin):
+    pass
+
+
+class BookView(ListCreateModelMixin):
+    query_set = models.Book.objects.all()
+    serializer_class = BookSerializer
+
+    def get(self, request):
+        return self.list(request)
+
+    def post(self, request):
+        return self.create(request)
+
+
+class BookEditView(RetrieveUpdateDestroyModelMixin):
+    query_set = models.Book.objects.all()
+    serializer_class = BookSerializer
+
+    def get(self, request, id):
+        return self.retrieve(request, id)
+
+    def put(self, request, id):
+        return self.update(request, id)
+
+    def delete(self, request, id):
+        return self.destroy(request, id)
+
+</code></pre>
+
+<h1 id="url">url路由</h1>
+<pre><code>from django.conf.urls import url
+from book import views
+
+urlpatterns = [
+    url(r'book_list', views.BookView.as_view()),
+    url(r'book_edit/(?P&lt;id&gt;\d+)/$', views.BookEditView.as_view())
+]
+
+</code></pre>
+              
+            </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="../restframework基础的增删改查进阶/" class="btn btn-neutral float-right" title="Text">Next <span class="icon icon-circle-arrow-right"></span></a>
+      
+      
+        <a href="../restframework基础的增删改查/" class="btn btn-neutral" title="Home"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+    
+  </div>
+
+  Built with <a href="http://www.mkdocs.org">MkDocs</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+      
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" style="cursor: pointer">
+    <span class="rst-current-version" data-toggle="rst-current-version">
+      
+      
+        <span><a href="../restframework基础的增删改查/" style="color: #fcfcfc;">&laquo; Previous</a></span>
+      
+      
+        <span style="margin-left: 15px"><a href="../restframework基础的增删改查进阶/" style="color: #fcfcfc">Next &raquo;</a></span>
+      
+    </span>
+</div>
+    <script>var base_url = '..';</script>
+    <script src="../js/theme.js" defer></script>
+      <script src="../search/main.js" defer></script>
+
+</body>
+</html>

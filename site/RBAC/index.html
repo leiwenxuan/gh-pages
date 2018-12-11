@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  
+  <link rel="shortcut icon" href="../img/favicon.ico">
+  <title>Text - lwx</title>
+  <link href='https://fonts.googleapis.com/css?family=Lato:400,700|Roboto+Slab:400,700|Inconsolata:400,700' rel='stylesheet' type='text/css'>
+
+  <link rel="stylesheet" href="../css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../css/theme_extra.css" type="text/css" />
+  <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/github.min.css">
+  
+  <script>
+    // Current page data
+    var mkdocs_page_name = "Text";
+    var mkdocs_page_input_path = "RBAC.md";
+    var mkdocs_page_url = null;
+  </script>
+  
+  <script src="../js/jquery-2.1.1.min.js" defer></script>
+  <script src="../js/modernizr-2.8.3.min.js" defer></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
+  <script>hljs.initHighlightingOnLoad();</script> 
+  
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+      <div class="wy-side-nav-search">
+        <a href=".." class="icon icon-home"> lwx</a>
+        <div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+	<ul class="current">
+	  
+          
+            <li class="toctree-l1">
+		
+    <a class="" href="..">Home</a>
+	    </li>
+          
+            <li class="toctree-l1">
+		
+    <a class="" href="../about/">About</a>
+	    </li>
+          
+            <li class="toctree-l1 current">
+		
+    <a class="current" href="./">Text</a>
+    <ul class="subnav">
+            
+    <li class="toctree-l2"><a href="#november-27-2018-716-pm">November 27, 2018 7:16 PM</a></li>
+    
+
+    <li class="toctree-l2"><a href="#rbacmd">RBAC基础上实现不同的用户不同的界面.md</a></li>
+    
+
+    <li class="toctree-l2"><a href="#_1">实现不同的用户不同的界面</a></li>
+    
+        <ul>
+        
+            <li><a class="toctree-l3" href="#_2">在权限表设置字段区分不同的权限</a></li>
+        
+        </ul>
+    
+
+    <li class="toctree-l2"><a href="#session">设置session</a></li>
+    
+        <ul>
+        
+            <li><a class="toctree-l3" href="#querysetdistinct">QuerySet对象.distinct()</a></li>
+        
+            <li><a class="toctree-l3" href="#session_1">这里把设置session 的代码封装了工具</a></li>
+        
+        </ul>
+    
+
+    <li class="toctree-l2"><a href="#_4">前端的代码实现</a></li>
+    
+        <ul>
+        
+            <li><a class="toctree-l3" href="#_5">在写程序之前想想如何规范代码的健壮型。</a></li>
+        
+            <li><a class="toctree-l3" href="#_6">代码实现</a></li>
+        
+            <li><a class="toctree-l3" href="#inclusion_tag-html">inclusion_tag html 代码　与不同的前端代码无区别</a></li>
+        
+        </ul>
+    
+
+    </ul>
+	    </li>
+          
+        </ul>
+      </div>
+      &nbsp;
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="..">lwx</a>
+      </nav>
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="..">Docs</a> &raquo;</li>
+    
+      
+    
+    <li>Text</li>
+    <li class="wy-breadcrumbs-aside">
+      
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main">
+            <div class="section">
+              
+                <h2 id="november-27-2018-716-pm">November 27, 2018 7:16 PM</h2>
+<h2 id="rbacmd">RBAC基础上实现不同的用户不同的界面.md</h2>
+<h1 id="_1">实现不同的用户不同的界面</h1>
+<h2 id="_2">在权限表设置字段区分不同的权限</h2>
+<p><strong>is_menu 决定这个ＵＲＬ在不在视图上显示　</strong></p>
+<pre><code># 权限表
+class UserPurview(models.Model):
+    title = models.CharField(max_length=32)
+    url = models.CharField(max_length=80)
+    is_menu = models.BooleanField(default=False, verbose_name='菜单')
+    icon = models.CharField(max_length=24, null=True, blank=True, verbose_name='图标')
+
+</code></pre>
+
+<h1 id="session">设置session</h1>
+<p>查询表注意去重</p>
+<h2 id="querysetdistinct">QuerySet对象.distinct()</h2>
+<h2 id="session_1">这里把设置session 的代码封装了工具</h2>
+<h4 id="_3">把相同可以实现多次的调用的代码片段实现封装，面对函数编程，领悟面对对象式编程</h4>
+<pre><code>'''
+    设置session　数据
+'''
+from SZcrm import settings
+
+
+def init(request, user_obj):
+    # 1.查询用户权限
+    # 2.把查询的url 添加到session 里面
+    url_list = user_obj.roles.all().values(
+        'permissions__url', 'permissions__title', 'permissions__is_menu',
+        'permissions__icon').distinct()  # 返回的QuerySet对象，没个元素都是元组
+    # 3.把查询的ｕｒｌ加入列表
+    # 取到url_list
+    #  permissions_list = [permissions['permissions__url'] for permissions in url_list]
+    permissions_list = []
+    # 存放菜单列表
+    menu_list = []
+    for i in url_list:
+        permissions_list.append(i['permissions__url'])
+        if i.get('permissions__is_menu'):
+            menu_list.append({
+                'url': i['permissions__url'],
+                'title': i['permissions__title'],
+                'icon': i['permissions__icon'],
+            })
+    session_key = getattr(settings, 'PERMISSION_URL_KEY', 'permissions_url')
+    menu_key = getattr(settings, 'SECRET_MENU', 'menu_list')
+
+    # 设置session, 存取menu列表
+    request.session[menu_key] = menu_list
+    # 设置session, 存取ｕｒｌ列表
+    request.session[session_key] = permissions_list
+
+
+</code></pre>
+
+<h1 id="_4">前端的代码实现</h1>
+<h2 id="_5">在写程序之前想想如何规范代码的健壮型。</h2>
+<p>前端接受数据依赖后端，有一些变量我们写在了配置文件里面，　防止后期变动，影响整个项目。那么前端如何实现呢</p>
+<h3 id="django-inclusion_tag">自定义django 模板函数　inclusion_tag</h3>
+<pre><code>    1.在当前的ａｐｐ下建立templatetags包
+    2.  from django import template
+        register = template.Library()
+        自己的业务逻辑
+
+</code></pre>
+
+<h2 id="_6">代码实现</h2>
+<pre><code>from django import template
+from SZcrm import settings
+import re
+register = template.Library()
+
+@register.inclusion_tag(filename='rbac/menu.html')
+def meun_list(request):
+    # １． 获取当前的url
+    new_url = request.path_info
+    # ２． 获取session　储存的session　key
+    meun_key = getattr(settings, 'SECRET_MENU', 'menu_list')
+    # 3. 获取session 里面的权限限定
+    meun_list = request.session.get(meun_key)
+    # 4.　循环判断：如果当前的ｕｒｌ在权限里面加一个css样式，
+    for meun in meun_list:
+        if re.match(r'^{}$'.format(meun['url']), new_url):
+            meun['class'] = 'active'
+    return {'menu_list': meun_list}
+
+</code></pre>
+
+<h2 id="inclusion_tag-html">inclusion_tag html 代码　与不同的前端代码无区别</h2>
+<pre><code>&lt;ul class=&quot;nav nav-sidebar navbar-inverse&quot;&gt;
+    {% for menu in menu_list %}
+        &lt;li class=&quot;{{ menu.class }}&quot;&gt;&lt;a href=&quot;{{ menu.url }}&quot;&gt;&lt;span
+                class=&quot;icon-wrap&quot;&gt;&lt;i
+                class=&quot;fa {{ menu.icon }}&quot;&gt;&lt;/i&gt;&lt;/span&gt;{{ menu.title }}&lt;/a&gt;&lt;/li&gt;
+    {% endfor %}
+&lt;/ul&gt;
+
+</code></pre>
+
+<h3 id="_7"><strong>时刻注意文件路径问题，　数据库导入　最为重要的是抄代码单词问题</strong></h3>
+              
+            </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+      
+        <a href="../about/" class="btn btn-neutral" title="About"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+    
+  </div>
+
+  Built with <a href="http://www.mkdocs.org">MkDocs</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+      
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" style="cursor: pointer">
+    <span class="rst-current-version" data-toggle="rst-current-version">
+      
+      
+        <span><a href="../about/" style="color: #fcfcfc;">&laquo; Previous</a></span>
+      
+      
+    </span>
+</div>
+    <script>var base_url = '..';</script>
+    <script src="../js/theme.js" defer></script>
+      <script src="../search/main.js" defer></script>
+
+</body>
+</html>
